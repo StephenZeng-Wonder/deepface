@@ -15,33 +15,21 @@ def home():
 @blueprint.route("/fork/represent", methods=["POST"])
 def fork_represent():
     import os
-    import json
-    from flask import jsonify
+    import time
     from deepface.commons import folder_utils
 
     root_dir = folder_utils.get_deepface_home() + "/.deepface"
 
-    if "image_data" not in request.files:
-        return jsonify({"error": "No image_data part"}), 400
-    if "param_json" not in request.form:
-        return jsonify({"error": "No param_json in form"}), 400
+    model_name = request.args.get("model_name", "VGG-Face")
+    detector_backend = request.args.get("detector_backend", "opencv")
+    enforce_detection = request.args.get("enforce_detection", True)
+    align = request.args.get("align", True)
+    temporary_path = request.args.get("temporary_path", root_dir + "/tmp")
+    filename = request.args.get("filename", str(int(time.time() * 1000)) + ".jpg")
 
-    file = request.files['image_data']
-    params = json.loads(request.form.get("param_json"))
-
-    if file.filename == '':
-        return jsonify({"error": "No filename"}), 400
-
-    if "temporary_path" not in params:
-        params["temporary_path"] = root_dir + "/tmp"
-
-    img_path = os.path.join(params["temporary_path"], file.filename)
-    file.save(img_path)
-
-    model_name = params["model_name"] if "model_name" in params else "VGG-Face"
-    detector_backend = params["detector_backend"] if "detector_backend" in params else "opencv"
-    enforce_detection = params["enforce_detection"] if "enforce_detection" in params else True
-    align = params["align"] if "align" in params else True
+    img_path = os.path.join(temporary_path, filename)
+    with open(img_path, 'wb') as file:
+        file.write(request.date)
 
     obj = service.represent(
         img_path=img_path,
