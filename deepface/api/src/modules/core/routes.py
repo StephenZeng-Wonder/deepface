@@ -13,7 +13,7 @@ def home():
 
 
 @blueprint.route("/fork/represent", methods=["POST"])
-def represent():
+def fork_represent():
     import os
     import json
     from flask import jsonify
