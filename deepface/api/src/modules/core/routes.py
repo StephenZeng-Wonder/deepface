@@ -29,7 +29,7 @@ def fork_represent():
 
     img_path = os.path.join(temporary_path, filename)
     with open(img_path, 'wb') as file:
-        file.write(request.date)
+        file.write(request.data)
 
     obj = service.represent(
         img_path=img_path,
