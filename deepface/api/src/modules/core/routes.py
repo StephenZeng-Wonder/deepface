@@ -12,14 +12,45 @@ def home():
     return "<h1>Welcome to DeepFace API!</h1>"
 
 
+import os
+import time
+import mediapipe as mp
+
+from deepface.commons import folder_utils
+from deepface.commons import keypoint_utils
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
+
+root_dir = folder_utils.get_deepface_home() + "/.deepface"
+model_path = root_dir + "/weights/face_landmarker.task"
+
+@blueprint.route("/landmark", methods=["POST"])
+def landmark():
+    temporary_path = request.args.get("temporary_path", root_dir + "/tmp")
+    filename = request.args.get("filename", str(int(time.time() * 1000)) + ".jpg")
+
+    img_path = os.path.join(temporary_path, filename)
+    with open(img_path, 'wb') as file:
+        file.write(request.data)
+
+    options = mp.tasks.vision.FaceLandmarkerOptions(
+        base_options=mp.tasks.BaseOptions(model_asset_path=model_path),
+        running_mode=mp.tasks.vision.RunningMode.IMAGE,
+        num_faces=1)
+
+    with mp.tasks.vision.FaceLandmarker.create_from_options(options) as landmarker:
+        mp_image = mp.Image.create_from_file(img_path)
+        obj = landmarker.detect(mp_image).face_landmarks[0]
+        obj = keypoint_utils.landmark_478_to_keypoint(obj)
+
+    logger.debug(obj)
+    os.remove(img_path)
+
+    return obj
+
+
 @blueprint.route("/fork/represent", methods=["POST"])
 def fork_represent():
-    import os
-    import time
-    from deepface.commons import folder_utils
-
-    root_dir = folder_utils.get_deepface_home() + "/.deepface"
-
     model_name = request.args.get("model_name", "VGG-Face")
     detector_backend = request.args.get("detector_backend", "opencv")
     enforce_detection = request.args.get("enforce_detection", True)

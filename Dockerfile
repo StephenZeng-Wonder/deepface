@@ -38,6 +38,8 @@ COPY ./README.md /app/
 RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -r /app/requirements_local.txt
 # install deepface from source code (always up-to-date)
 RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -e .
+# install mediapipe
+RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org mediapipe
 
 # -----------------------------------
 # some packages are optional in deepface. activate if your task depends on one.
