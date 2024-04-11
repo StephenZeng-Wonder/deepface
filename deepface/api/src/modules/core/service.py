@@ -2,6 +2,22 @@ from deepface import DeepFace
 
 # pylint: disable=broad-except
 
+def find(img_path, db_path, model_name, detector_backend, enforce_detection, align):
+    try:
+        result = {}
+        similarities = DeepFace.find(
+            img_path=img_path,
+            db_path=db_path,
+            model_name=model_name,
+            detector_backend=detector_backend,
+            enforce_detection=enforce_detection,
+            align=align,
+        )
+        result["results"] = similarities
+        return result
+    except Exception as err:
+        return {"error": f"Exception while finding: {str(err)}"}, 400
+
 
 def represent(img_path, model_name, detector_backend, enforce_detection, align):
     try:

@@ -49,6 +49,36 @@ def landmark():
     return obj
 
 
+@blueprint.route("/find", methods=["POST"])
+def find():
+    model_name = request.args.get("model_name", "VGG-Face")
+    detector_backend = request.args.get("detector_backend", "opencv")
+    enforce_detection = request.args.get("enforce_detection", True)
+    align = request.args.get("align", True)
+    temporary_path = request.args.get("temporary_path", root_dir + "/tmp")
+    database_path = request.args.get("database_path", root_dir + "/database")
+    filename = request.args.get("filename", str(int(time.time() * 1000)) + ".jpg")
+
+    img_path = os.path.join(temporary_path, filename)
+    with open(img_path, 'wb') as file:
+        file.write(request.data)
+
+    obj = service.find(
+        img_path=img_path,
+        db_path=database_path,
+        model_name=model_name,
+        detector_backend=detector_backend,
+        enforce_detection=enforce_detection,
+        align=align,
+    )
+
+    logger.debug(obj)
+    os.remove(img_path)
+
+    return obj
+
+
+
 @blueprint.route("/fork/represent", methods=["POST"])
 def fork_represent():
     model_name = request.args.get("model_name", "VGG-Face")
