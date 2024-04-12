@@ -15,8 +15,14 @@ def find(img_path, db_path, model_name, detector_backend, enforce_detection, ali
         )
         rst = []
         for s in similarities:
-            e = {"identity": s.identity, "distance": s.distance, "threshold": s.threshold, "target_x": s.target_x,
-                 "target_y": s.target_y, "target_w": s.target_w, "target_h": s.target_h}
+            if s.index.stop == 0: continue
+            e = {"identity": str(s.identity[0]),
+                 "distance": str(s.distance[0]),
+                 "target_x": str(s.target_x[0]),
+                 "target_y": str(s.target_y[0]),
+                 "target_w": str(s.target_w[0]),
+                 "target_h": str(s.target_h[0]),
+                 "threshold": str(s.threshold[0])}
             rst.append(e)
         result["results"] = rst
         return result
